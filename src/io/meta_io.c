@@ -29,6 +29,7 @@
 #include "io_internal_hdf5.h"
 #include "io_arepo.h"
 #include "io_gadget4.h"
+#include "io_swift.h"
 #endif /* ENABLE_HDF5 */
 
 char **snapnames  = NULL;
@@ -88,6 +89,7 @@ void get_input_filename(char *buffer, int maxlen, int64_t snap, int64_t block) {
                         !strncasecmp(FILE_FORMAT, "LGADGET", 7) ||
                         !strncasecmp(FILE_FORMAT, "KYF", 3) ||
                         !strncasecmp(FILE_FORMAT, "AREPO", 5) ||
+                        !strncasecmp(FILE_FORMAT, "SWIFT", 5) ||
                         !strncasecmp(FILE_FORMAT, "GADGET4", 7))
                         snprintf(buffer + out, maxlen - out, "%03" PRId64,
                                  snap);
@@ -176,6 +178,14 @@ void read_particles(char *filename) {
         load_particles_arepo(filename, &p, &num_p);
 #else
         fprintf(stderr, "[Error] AREPO needs HDF5 support.  Recompile Rockstar "
+                        "using \"make with_hdf5\".\n");
+        exit(1);
+#endif
+    } else if (!strncasecmp(FILE_FORMAT, "SWIFT", 5)) {
+#ifdef ENABLE_HDF5
+        load_particles_swift(filename, &p, &num_p);
+#else
+        fprintf(stderr, "[Error] SWIFT needs HDF5 support.  Recompile Rockstar "
                         "using \"make with_hdf5\".\n");
         exit(1);
 #endif
